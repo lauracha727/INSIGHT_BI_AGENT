@@ -1,15 +1,12 @@
-import sqlite3
+import os
 import pandas as pd
+import psycopg
+from dotenv import load_dotenv
 
-DATABASE = "database/olist.sqlite"
+load_dotenv()
 
-
-def get_connection():
-    return sqlite3.connect(DATABASE)
-
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 def execute_query(sql):
-    conn = get_connection()
-    df = pd.read_sql_query(sql, conn)
-    conn.close()
-    return df
+    with psycopg.connect(DATABASE_URL) as conn:
+        return pd.read_sql_query(sql, conn)
