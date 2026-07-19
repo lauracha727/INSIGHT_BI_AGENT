@@ -1,21 +1,22 @@
 import os
+import streamlit as st
 from groq import Groq
 from dotenv import load_dotenv
 
-from pathlib import Path
+load_dotenv()
 
-load_dotenv(dotenv_path=Path(__file__).parent / ".env")
+api_key = os.getenv("GROQ_API_KEY")
 
-print("API:", os.getenv("GROQ_API_KEY"))
+if api_key is None:
+    api_key = st.secrets["GROQ_API_KEY"]
 
-client = Groq(
-    api_key=os.getenv("GROQ_API_KEY")
-)
+MODEL = os.getenv("MODEL")
 
-MODEL = os.getenv(
-    "MODEL",
-    "llama-3.3-70b-versatile"
-)
+if MODEL is None:
+    MODEL = st.secrets.get("MODEL", "llama-3.3-70b-versatile")
+
+client = Groq(api_key=api_key)
+
 
 def ask_llm(system_prompt, user_prompt):
 
