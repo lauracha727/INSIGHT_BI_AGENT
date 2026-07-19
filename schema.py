@@ -1,34 +1,44 @@
-import sqlite3
+import os
+import psycopg
+import streamlit as st
+from dotenv import load_dotenv
 
-DATABASE = "database/olist.sqlite"
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if DATABASE_URL is None:
+    DATABASE_URL = st.secrets["DATABASE_URL"]
 
 
 def get_schema():
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT name
-        FROM sqlite_master
-        WHERE type='table'
-        ORDER BY name;
-    """)
+    with psycopg.connect(DATABASE_URL) as conn:
 
-    tables = [row[0] for row in cursor.fetchall()]
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT
+                table_name,
+                column_name,
+                data_type
+            FROM information_schema.columns
+            WHERE table_schema = 'public'
+            ORDER BY table_name, ordinal_position;
+        """)
+
+        rows = cursor.fetchall()
 
     schema = ""
 
-    for table in tables:
+    current_table = None
 
-        schema += f"\n\nTABLA: {table}\n"
+    for table, column, data_type in rows:
 
-        cursor.execute(f"PRAGMA table_info('{table}')")
+        if table != current_table:
+            schema += f"\n\nTABLA: {table}\n"
+            current_table = table
 
-        columns = cursor.fetchall()
-
-        for column in columns:
-            schema += f"- {column[1]} ({column[2]})\n"
-
-    conn.close()
+        schema += f"- {column} ({data_type})\n"
 
     return schema
