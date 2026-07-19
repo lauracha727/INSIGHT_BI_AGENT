@@ -1,11 +1,9 @@
-import os
 import pandas as pd
 import psycopg
-from dotenv import load_dotenv
+import streamlit as st
 
-load_dotenv()
+DATABASE_URL = st.secrets["DATABASE_URL"]
 
-DATABASE_URL = os.getenv("DATABASE_URL")
 
 def execute_query(sql):
     with psycopg.connect(DATABASE_URL) as conn:
