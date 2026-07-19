@@ -1,14 +1,7 @@
-import os
 import psycopg
 import streamlit as st
-from dotenv import load_dotenv
 
-load_dotenv()
-
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-if DATABASE_URL is None:
-    DATABASE_URL = st.secrets["DATABASE_URL"]
+DATABASE_URL = st.secrets["DATABASE_URL"]
 
 
 def get_schema():
