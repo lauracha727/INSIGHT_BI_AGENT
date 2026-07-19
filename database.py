@@ -1,18 +1,15 @@
-from supabase import create_client
-from dotenv import load_dotenv
-import os
+import sqlite3
+import pandas as pd
 
-# Cargar variables del archivo .env
-load_dotenv()
+DATABASE = "database/olist.sqlite"
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-# Crear cliente
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+def get_connection():
+    return sqlite3.connect(DATABASE)
 
-def test_connection():
-    response = supabase.table("olist_orders_dataset").select("*").limit(5).execute()
-    return response.data
 
-print("opcion: "+test_connection())
+def execute_query(sql):
+    conn = get_connection()
+    df = pd.read_sql_query(sql, conn)
+    conn.close()
+    return df
