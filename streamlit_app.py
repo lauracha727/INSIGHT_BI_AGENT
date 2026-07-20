@@ -2,6 +2,7 @@ import streamlit as st
 
 from sql_generator import generate_sql
 from database import execute_query
+from interpreter import explain_result
 
 st.set_page_config(
     page_title="INSIGHT BI AGENT",
@@ -59,3 +60,18 @@ if st.button("Consultar"):
     except Exception as e:
 
         st.error(f"Ocurrió un error:\n\n{e}")
+
+# =====================================
+# INTERPRETACIÓN IA
+# =====================================
+
+with st.spinner("🧠 Analizando resultados..."):
+
+    analysis = explain_result(
+        question,
+        df
+    )
+
+st.subheader("🧠 Interpretación")
+
+st.success(analysis)
