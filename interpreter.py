@@ -15,6 +15,7 @@ Reglas:
 - Si el resultado tiene una sola fila, explica qué significa.
 - Si hay varias filas, destaca tendencias o diferencias importantes.
 - No repitas la tabla.
+- Escribe como si hablaras con un gerente o un usuario de negocio.
 """
 
 
@@ -27,9 +28,9 @@ Pregunta del usuario:
 
 Resultado de la consulta:
 
-{df.to_markdown(index=False)}
+{df.to_string(index=False)}
 
-Genera una interpretación ejecutiva.
+Genera una interpretación ejecutiva del resultado.
 """
 
     return ask_llm(
