@@ -15,8 +15,8 @@ SQLITE_FUNCTIONS = [
 
 
 def contains_sqlite(sql):
-    sql = sql.upper()
-    return any(func in sql for func in SQLITE_FUNCTIONS)
+    sql_upper = sql.upper()
+    return any(func in sql_upper for func in SQLITE_FUNCTIONS)
 
 
 def generate_sql(question):
@@ -52,19 +52,30 @@ Reglas:
 - Utiliza únicamente las tablas y columnas del esquema.
 """
 
-    for _ in range(3):
+    for intento in range(3):
 
         sql = ask_llm(
             SYSTEM_PROMPT,
             prompt
         ).strip()
 
+        print("=" * 80)
+        print(f"Intento {intento + 1}")
+        print("SQL generado:")
+        print(repr(sql))
+        print("contains_sqlite =", contains_sqlite(sql))
+        print("=" * 80)
+
         if not contains_sqlite(sql):
             return sql
 
-        prompt += """
+        prompt += f"""
 
 La consulta anterior fue incorrecta porque utilizó funciones de SQLite.
+
+SQL generado:
+
+{sql}
 
 Reescribe completamente la consulta.
 
@@ -72,22 +83,28 @@ Está prohibido utilizar:
 
 - STRFTIME
 - PRAGMA
-- sqlite_master
-- julianday
-- datetime()
+- SQLITE_MASTER
+- JULIANDAY
 - IFNULL
+- AUTOINCREMENT
+- DATETIME()
 
-Utiliza únicamente PostgreSQL.
+Recuerda:
 
-Para fechas usa:
+- La base de datos es PostgreSQL.
+- Usa únicamente:
+    - EXTRACT()
+    - DATE_TRUNC()
+    - TO_CHAR()
 
-- DATE_TRUNC()
-- EXTRACT()
-- TO_CHAR()
-
-Devuelve únicamente SQL.
+Devuelve únicamente SQL válido para PostgreSQL.
 """
 
     raise Exception(
-        "No fue posible generar una consulta PostgreSQL válida."
+        f"""El modelo generó SQL de SQLite en los 3 intentos.
+
+Último SQL generado:
+
+{sql}
+"""
     )
