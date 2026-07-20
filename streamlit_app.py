@@ -20,22 +20,42 @@ question = st.text_input(
 
 if st.button("Consultar"):
 
-    if question.strip() == "":
+    if not question.strip():
         st.warning("Escribe una pregunta.")
         st.stop()
 
-    with st.spinner("Generando SQL..."):
+    try:
 
-        sql = generate_sql(question)
+        with st.spinner("🧠 Generando SQL..."):
+            sql = generate_sql(question)
 
-    st.subheader("📄 SQL generado")
+        st.subheader("📄 SQL generado")
+        st.code(sql, language="sql")
 
-    st.code(sql, language="sql")
+        with st.spinner("📊 Consultando Supabase..."):
+            df = execute_query(sql)
 
-    with st.spinner("Consultando la base de datos..."):
+        st.subheader("📈 Resultado")
+        st.dataframe(df, use_container_width=True)
 
-        df = execute_query(sql)
+        # =====================================
+        # VISUALIZACIÓN AUTOMÁTICA
+        # =====================================
 
-    st.subheader("📊 Resultado")
+        if len(df.columns) == 2:
 
-    st.dataframe(df, use_container_width=True)
+            x = df.columns[0]
+            y = df.columns[1]
+
+            # Verifica que la segunda columna sea numérica
+            if df[y].dtype.kind in "iuf":
+
+                st.subheader("📊 Visualización")
+
+                st.bar_chart(
+                    df.set_index(x)
+                )
+
+    except Exception as e:
+
+        st.error(f"Ocurrió un error:\n\n{e}")
